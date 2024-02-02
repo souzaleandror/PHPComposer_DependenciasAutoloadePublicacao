@@ -1,0 +1,22 @@
+{
+    "name": "leandrorodrigues/buscador-alura",
+    "description": "Um buscador de curso do site da alura",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Leandrorodrigues\\BuscadorAlura\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Leandro Rodrigues Souza",
+            "email": "souza.leandror@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.8",
+        "symfony/dom-crawler": "^7.0",
+        "symfony/css-selector": "^7.0"
+    }
+}
