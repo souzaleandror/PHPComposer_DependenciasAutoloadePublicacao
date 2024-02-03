@@ -8,6 +8,12 @@ composer require symfony/dom-crawler
 composer require symfony/css-selector
 composer install
 composer update
+composer insall --no-dev
+composer require --dev phpunit/phpunit
+vendor/bin/phpunit --version
+composer require --dev squizlabs/php_codesniffer
+vendor/bin/phpcs --standard=PSR12 src/
+composer require --dev phan/phan
 ```
 
 @01-Instalando o Composer 
@@ -662,7 +668,6 @@ https://packagist.org/
 
 @@01
 Projeto da aula anterior
-PRÓXIMA ATIVIDADE
 
 Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
 
@@ -701,7 +706,6 @@ https://www.php-fig.org/psr/psr-4/
 
 @@03
 PSR de Autoload
-PRÓXIMA ATIVIDADE
 
 Entendemos agora como os pacotes se organizam de forma que o Composer consiga realizar o autoload de todos com um único código.
 Quais os principais pontos da PSR-4?
@@ -779,7 +783,6 @@ Porém, em alguns momentos não utilizamos a orientação a objetos. Pode aconte
 
 @@05
 Autoload no composer.json
-PRÓXIMA ATIVIDADE
 
 Já sabemos que o autoload.php do Composer consegue buscar as classes dos componentes baixados pois eles implementam a PSR-4. Nós também vimos agora como configurar a PSR-4 em nosso projeto.
 O que é necessário para configurar a PSR-4 em nosso projeto, levando em consideração que nossa estrutura de arquivos já atende seus requisitos?
@@ -929,7 +932,6 @@ Com o autoload pronto, está na hora de trabalharmos com algumas coisas mais int
 
 @@07
 Projetos legados
-PRÓXIMA ATIVIDADE
 
 É muito comum trabalharmos em projetos legados que não implementam a PSR-4 em sua estrutura de arquivos.
 Qual a solução que o Composer nos entrega para conseguirmos utilizar um autoload nesses casos?
@@ -946,7 +948,6 @@ Alternativa correta! Com a chave classmap conseguimos informar arquivos que cont
 
 @@08
 Consolidando o seu conhecimento
-PRÓXIMA ATIVIDADE
 
 Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
 1) No seu editor de código abra o arquivo buscador-cursos.php e apague a linha require 'src/Buscador.php';
@@ -970,7 +971,6 @@ Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao n
 
 @@09
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos: O que aprendemos?
 Conhecemos a PSR-4 (Autoloader)
@@ -982,3 +982,449 @@ Podemos ter um sub-namespace que precisa ser representado através de pastas
 Para atualizar o arquivo autoload.php baseado no composer.json, podemos rodar o comando composer dumpautoload
 Para classes que não seguem o PSR-4, podemos definir um classmap dentro do composer.json
 Para carregar um biblioteca de funções automaticamente, podemos adicionar uma entrada files no composer.json
+
+#### 03/02/2024
+
+@04-Ferramentas de qualidade de código
+
+@@01
+Projeto da aula anterior
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://caelum-online-public.s3.amazonaws.com/1255-composer/04/1250-composer-aula3.zip
+
+@@02
+Instalando PHPUnit
+
+Até o momento só temos visto dependências com as quais escrevemos código, como um cliente HTTP ou um crawler, e são todas dependências que vão para o nosso projeto em produção, ou seja, para o código que iremos disponibilizar. Mas e as ferramentas que só são utilizadas no momento do desenvolvimento, como o PHPUnit, utilizado para testar nossa aplicação? Será que não podemos utilizar o Composer para baixá-lo?
+Sabemos que se for feito um composer require ou se adicionarmos o PHPUnit no nosso composer.json, ele também será instalado quando rodarmos o composer install no nosso servidor de produção, mesmo sendo uma ferramenta própria apenas ao ambiente de desenvolvimento. Será possível, então, separarmos as ferramentas de desenvolvimento e as de produção?
+
+Na documentação do PHPUnit , na parte referente ao Composer, encontramos a seguinte instrução:
+
+➜ composer require --dev phpunit/phpunit ^8
+
+➜ ./vendor/bin/phpunit --version
+PHPUnit 8.0.0 by Sebastian Bergmann and contributors.COPIAR CÓDIGO
+Repare que na chamada do composer require foi adicionado um parâmetro --dev. Esse parâmetro informa que a dependência a ser instalada não deverá ser utilizada em ambiente de produção, mas apenas na máquina de desenvolvimento na qual estamos trabalhando no momento. Sendo assim, copiaremos o código composer require --dev phpunit/phpunit ^8 e o executaremos em nosso terminal.
+
+Após a instalação, repare que o PHPUnit precisa instalar diversos componentes para funcionar, e ainda sugere alguns outros. Se o instalássemos no servidor de produção, acabaríamos gastando mais espaço, tempo e talvez até memória (no caso desses códigos serem utilizados).
+
+Em ambiente de produção, quando precisarmos instalar as dependências do projeto, bastará executarmos composer install --no-dev para que sejam baixadas as dependências dentro de require no arquivo composer.json, mas não as dependências de require-dev, que foi adicionado quando instalamos o PHPUnit.
+
+Já vimos como instalar uma ferramenta para o ambiente de desenvolvimento, no caso o PHPUnit. Caso não conheça, ele é uma ferramenta muto poderosa para testes - majoritariamente testes unitários, mas que disponibiliza recursos para realizar qualquer tipo de testes. Temos, inclusive, um curso de PHPUnit aqui na Alura! Se quiser se aprofundar mais nessa ferramenta, é interessante estudá-la.
+
+Como já fizemos a instalação, que tal escrevermos um teste simples? Mas, antes disso, como podemos garantir que o PHPUnit realmente está instalado, se ele não fornece - pelo menos por enquanto - códigos?
+
+Sempre que temos uma ferramenta que roda na linha de comando, como é o caso do PHPUnit, nos é fornecido um arquivo executável dentro da pasta "\vendor\bin" que pode ser rodado utilizando vendor\bin\phpunit, por exemplo. Para testarmos, verificaremos a versão que foi instalada chamando vendor\bin\phpunit --version.
+
+PHPUnit 8.0.0 by Sebastian Bergmann and contributors.
+Assim, conseguimos a confirmação de que o PHPUnit foi instalado e de que ele pode ser executado pela linha de comando. No próximo vídeo conversaremos sobre como executar um teste propriamente dito.
+
+https://phpunit.de/getting-started/phpunit-8.html
+
+https://packagist.org/packages/phpunit/phpunit
+
+@@03
+Arquivos executáveis
+
+Vimos nesta aula que conseguimos ter dependências específicas para nos auxiliar no momento do desenvolvimento, que não serão utilizadas em código de produção, por quem baixar nosso pacote. Muitas dependências deste tipo fornecem arquivos executáveis.
+Onde ficam os arquivos executáveis que o Composer traz com os pacotes?
+
+Na pasta bin dentro da pasta vendor
+ 
+Alternativa correta! O Composer organiza muito bem a pasta vendor e dentro dela há uma pasta chamada bin. Nesta ficam todos os arquivos executáveis que nossas dependências possam fornecer. O exemplo utilizado na aula foi a ferramenta de testes PHPUnit.
+Alternativa correta
+Na pasta com nome do pacote em questão, dentro da pasta vendor
+ 
+Alternativa correta
+Na raiz da pasta vendor
+
+@@04
+Escrevendo um teste
+
+Já vimos que é possível definir dependências de desenvolvimento, ou seja, dependências que só são utilizadas durante o desenvolvimento do projeto, e que não são necessárias na produção. Além disso, já instalamos uma dessas dependências, o PHPUnit, uma ferramenta para executar testes automatizados.
+Para vermos um código funcionando, nosso instrutor escreveu um teste. Como o foco desse treinamento não são os testes automatizados, vamos passar por ele rapidamente. No caso, teremos na raiz do projeto um diretório "tests" contendo o arquivo TestBuscadorDeCursos.php com o seguindo código:
+
+<?php
+
+namespace Alura\BuscadorDeCursos\Tests;
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\ClientInterface;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use Symfony\Component\DomCrawler\Crawler;
+
+class TestBuscadorDeCursos extends TestCase
+{
+    private $httpClientMock;
+    private $url = 'url-teste';
+
+    protected function setUp(): void
+    {
+        $html = <<<FIM
+        <html>
+            <body>
+                <span class="card-curso__nome">Curso Teste 1</span>
+                <span class="card-curso__nome">Curso Teste 2</span>
+                <span class="card-curso__nome">Curso Teste 3</span>
+            </body>
+        </html>
+        FIM;
+
+
+        $stream = $this->createMock(StreamInterface::class);
+        $stream
+            ->expects($this->once())
+            ->method('__toString')
+            ->willReturn($html);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn($stream);
+
+        $httpClient = $this
+            ->createMock(ClientInterface::class);
+        $httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('GET', $this->url)
+            ->willReturn($response);
+
+        $this->httpClientMock = $httpClient;
+    }
+
+    public function testBuscadorDeveRetornarCursos()
+    {
+        $crawler = new Crawler();
+        $buscador = new Buscador($this->httpClientMock, $crawler);
+        $cursos = $buscador->buscar($this->url);
+
+        $this->assertCount(3, $cursos);
+        $this->assertEquals('Curso Teste 1', $cursos[0]);
+        $this->assertEquals('Curso Teste 2', $cursos[1]);
+        $this->assertEquals('Curso Teste 3', $cursos[2]);
+    }
+}
+COPIAR CÓDIGO
+Nele, temos uma função testBuscadorDeveRetornarCursos() que é, efetivamente, o nosso teste, e que garante que o buscador deve retornar cursos com base em um HTML de exemplo. Na função, instanciamos o Crawler e criamos um cliente HTTP "falso", como um dublê de testes (httpClientMock), para que a requisição não aconteça de verdade, fazendo com que o teste execute mais rápido e consigamos controlá-lo melhor - por exemplo, nosso teste não será afetado caso o site saia do ar.
+
+A partir do buscador, executamos uma busca passando uma URL de teste e garantimos que determinados cursos serão retornados. Isso acontece pois, na função setUp(), definimos um HTML para ser utilizado no teste. Para isso, criamos um Mock, ou seja, um dublê de resposta, para a nossa clientInterface, a dependência do nosso buscador. Com a resposta, chamamos o getBody para retornarmos um stream do qual criaremos também um dublê de testes. Como esse stream é representado por uma string, criamos um Mock para o método __toString.
+
+Resumindo, estamos garantindo que o HTML $html será parseado/lido corretamente, resultando em três cursos com os conteúdos definidos no teste. Para garantirmos que o teste funciona, basta, no PhpStorm, clicarmos no botão "Run" ao lado da definição da classe. Na saída, teremos os resultados do teste, mostrando que tudo ocorreu como deveria.
+
+Podemos alterar o teste para fazer com que ele falhe de propósito, por exemplo mudando o valor de assertCount() para 2. Também podemos executar o teste pela linha de comando utilizando vendor\bin\phpunit seguido do caminho do teste, nesse caso tests\TesteBuscadorDeCursos.php.
+
+vendor\bin\phpunit tests\TesteBuscadorDeCursos.phpCOPIAR CÓDIGO
+Repare que dentro da pasta "vendor\bin" nós temos um arquivo executável que foi trazido pelo Composer. Ou seja, o Composer criou uma pasta onde ficarão os arquivos executáveis relacionados às nossas dependências. Em relação aos testes, se você quiser mais detalhes, pode conferir os cursos que temos aqui na Alura - inclusive de PHPUnit.
+
+Feito tudo isso, já temos uma dependência de desenvolvimento, temos um teste para garantir que nossa aplicação funciona da forma esperada e podemos pensar em utilizar outras ferramentas, por exemplo uma que busque erros no nosso código. Imagine que digitemos errado o nome de alguma variável, como $httdpClient ao invés de $httpClient, poderíamos ter uma ferramenta apontando que a variável que estamos tentando acessar não existe, que um tipo definido não corresponde ao método que está sendo chamado ou mesmo que verifique se estamos seguindo as boas práticas de codificação, posicionamento das chaves, etc.
+
+No próximo vídeo começaremos a conhecer um pouco mais essas ferramentas que podem ajudar na qualidade do nosso código.
+
+@@05
+Para saber mais: PHPUnit
+
+Nesta aula vimos como é o código de um teste automatizado. Como este não é o foco do treinamento, não vamos entrar em detalhes sobre como desenvolver um teste automatizado, nem se o teste está escrito da melhor forma.
+Caso você tenha interesse em aprender mais sobre teste (o que é super recomendado) pode conferir nosso cursos específicos deste assunto aqui na Alura. Temos cursos de PHPUnit na plataforma. :-D
+
+https://cursos.alura.com.br/course/phpunit-tdd
+
+@@06
+Instalando o PHPCS
+
+Já entendemos como separar as dependências de produção e desenvolvimento, e que, em um servidor de produção, podemos executar um composer install --no-dev para não trazer as dependências que estiverem listadas no require-dev, como o PHPUnit. Porém, o PHPUnit é somente uma das ferramentas que podemos rodar na linha de comando e utilizar no nosso ambiente de desenvolvimento, e gostaríamos de apresentar algumas outras.
+Uma ferramente bastante interessante, que é um projeto bastante antigo, verifica se nosso código está dentro dos padrões. Por exemplo, existe uma PSR que dita que estruturas de controle, como loops e if, precisam ter as chaves sendo abertas na mesma linha em que a estrutura foi definida. Já métodos e classes têm as chaves abertas na linha de baixo. Para testarmos, faremos pequenas alterações no Buscador.php.
+
+public function buscar(string $url): array {
+
+    $resposta = $this->httpClient->request('GET', $url);
+
+    $html = $resposta->getBody();
+    $this->crawler->addHtmlContent($html);
+
+    $elementosCursos = $this->crawler->filter('span.card-curso__nome');
+    $cursos = [];
+
+    foreach ($elementosCursos as $elemento)
+    {
+        $cursos[] = $elemento->textContent;
+    }
+
+    return $cursos;
+}COPIAR CÓDIGO
+Se quebrarmos esse padrão, o PHP não acusará nenhum erro. Queremos então uma ferramenta que nos mostre em que locais do código tal padrão está sendo quebrado. O nome dessa ferramenta é PHP_CodeSniffer, também, conhecida como PHPCS. Acessaremos o site da ferramenta, onde encontraremos as instruções de instalação com o Composer.
+
+composer global require "squizlabs/php_codesniffer=*"COPIAR CÓDIGO
+Repare que se utiliza o comando global require, o que significa que a dependência será instalada de forma global no sistema e poderá ser acessada de qualquer pasta. Porém, não queremos isso, mas sim que o PHPCS seja instalado somente no nosso projeto. Sendo assim, usaremos composer require --dev squizlabs/php_codesniffer para instalarmos esse componente como uma dependência de desenvolvimento.
+
+Após o componente ter sido baixado, poderemos executá-lo pela linha de comando para verificarmos se nosso código está dentro de um padrão especificado. Feita a instalação, acessaremos vendor\bin\phpcs --help para exibir os comandos do PHPCS que nos são disponibilizados. Dentre as várias opções, queremos executar vendor\bin\phpcs --standard=PSR12 src\, ou seja, rodaremos o PHPCS com o padrão da PSR12 analisando o código dentro da pasta "src".
+
+Rodando esse comando, três erros serão encontrados: primeiro que a quebra de linha do arquivo está utilizando o padrão do Windows; segundo que, na linha 25, estamos abrindo as chaves na mesma linha da função; e terceiro que, na linha 34 (que se torna a linha 35 após consertarmos o erro anterior), deveríamos abrir chaves na mesma linha do foreach.
+
+Corrigindo esses erros, se executarmos novamente o PHPCS teremos apenas um erro, referente à quebra de linha do Windows. Para resolvê-lo, precisaríamos mudar a configuração do nosso editor de texto, mas é algo com que não iremos nos preocupar. Perceba, então, que conseguimos analisar e garantir que nosso projeto está seguindo determinado padrão de codificação, no caso a PSR12 (e existem vários outros), além de obtermos um feedback em relação a isso.
+
+Entretanto, essa ferramenta não verifica se nosso código está errado, por exemplo se temos um nome de variável incorreto. No próximo vídeo conheceremos uma ferramenta que faz justamente essa busca por erros antes de executarmos o nosso código.
+
+@@07
+Para saber mais: PSR 12
+
+Quando utilizamos Composer para gerenciar nosso projeto, normalmente significa que temos consciência do que estamos fazendo e somos pessoas que se preocupam com qualidade de código. Além de diversas boas práticas, existem também recomendações específicas sobre como organizar nosso código.
+Em qual linha abrir as chaves, como nomear variáveis e métodos, etc. Tudo isso está bem descrito na PSR 12 e nesta aula instalamos uma ferramenta que verifica se o código que escrevemos está seguindo estas recomendações.
+
+@@08
+Instalando o Phan
+
+Nesse capítulo temos conhecido algumas ferramentas interessantes para trabalharmos na linha de comando e, com isso, aprendemos a separar as dependências de produção das dependências de desenvolvimento, como escrever e rodar e um teste e como analisar o nosso código para garantirmos que ele siga determinado padrão (como o da PSR-12).
+Porém, ainda não estamos detectando possíveis erros no nosso código. Para isso, podemos utilizar uma ferramenta chamada Phan. Para instalarmos, usaremos composer require --dev phan/phan, incluindo o --dev pois somente queremos instalá-la na nossa máquina de desenvolvimento.
+
+Sempre que instalamos um pacote que possui uma ferramenta de linha de comando, o Composer a move para o diretório "vendor\bin" do composer. Sendo assim, os arquivos executáveis serão todos armazenados nessa pasta - que, no momento, conta com o phpunit e o phpcs que instalamos anteriormente. O PHPCS inclui ainda um phpcbf, outro comando capaz de consertar os erros identificados pelo PHPCS.
+
+Anteriormente, o PHPCS identificou um erro em relação às quebras de linha no código. Esse erro é facilmente resolvido no PhpStorm, bastando mudarmos a opção CRLF para LF. Feito isso, se executarmos vendor\bin\phpcs --standard=PSR12 src\, não receberemos nenhum erro.
+
+Para executarmos o novo pacote que baixamos, precisaremos habilitar uma extensão. No retorno da instalação, somos informados que se a extensão de ASTs não tiver habilitada, devemos rodar o comando com o parâmetro --allow-polyfill-parser. Para não entrarmos em detalhes sobre o uso de extensões, sempre rodaremos com esse parâmetro.
+
+No terminal, executaremos vendor\bin\phan --help para obtermos a lista de comandos. Com ela, aprenderemos que, para executarmos os comandos, precisaremos passar as opções seguidas dos arquivos que deverão ser analisados, ou mesmo um diretório (utilizando -l). Por enquanto, como só temos um arquivo, usaremos a sintaxe [options] [files...].
+
+vendor\bin\phan --allow-polyfill-parser src\Buscador.phpCOPIAR CÓDIGO
+Feito isso, seremos informados alguns erros:
+
+src\Buscador.php:13 PhanUndeclaredTypeProperty Property \Alura\BuscadorDeCursos\Buscador->httpClient has undeclared type \GuzzleHttp\ClientInterface
+src\Buscador.php:17 PhanUndeclaredTypeProperty Property \Alura\BuscadorDeCursos\Buscador->crawler has undeclared type \Symfony\Component\DomCrawler\Crawler
+src\Buscador.php:19 PhanUndeclaredTypeParameter Parameter $crawler has undeclared type \Symfony\Component\DomCrawler\Crawler
+src\Buscador.php:19 PhanUndeclaredTypeParameter Parameter $httpClient has undeclared type \GuzzleHttp\ClientInterface
+src\Buscador.php:27 PhanUndeclaredClassMethod Call to method request from undeclared class \GuzzleHttp\ClientInterface
+src\Buscador.php:30 PhanUndeclaredClassMethod Call to method addHtmlContent from undeclared class \Symfony\Component\DomCrawler\Crawler
+src\Buscador.php:32 PhanUndeclaredClassMethod Call to method filter from undeclared class \Symfony\Component\DomCrawler\CrawlerCOPIAR CÓDIGO
+Os primeiros dizem que os tipos dos nossos objetos, ClientInterface e Crawler, não foram identificados. Isso acontece pois o Phan está analisando somente o nosso Buscador.php, e não o restante do projeto. Para corrigirmos isso, teremos que informar um arquivo de configuração do Phan, o que é feito criando um diretório .phan contendo um arquivo config.php.
+
+De volta ao projeto, criaremos o arquivo especificado e colaremos nele o conteúdo mostrado na documentação. Note que, abaixo, os comentários já foram removidos.
+
+<?php
+
+return [
+
+    "target_php_version" => null,
+
+    'directory_list' => [
+        'src',
+        'vendor/symfony/console',
+    ],
+
+    "exclude_analysis_directory_list" => [
+        'vendor/'
+    ],
+
+    'plugins' => [
+        'AlwaysReturnPlugin',
+        'DollarDollarPlugin',
+        'DuplicateArrayKeyPlugin',
+        'DuplicateExpressionPlugin',
+        'PregRegexCheckerPlugin',
+        'PrintfCheckerPlugin',
+        'SleepCheckerPlugin',
+        'UnreachableCodePlugin',
+        'UseReturnValuePlugin',
+        'EmptyStatementListPlugin',
+        'LoopVariableReusePlugin',
+    ],
+];COPIAR CÓDIGO
+Em seguida, faremos as alterações relativas ao nosso projeto. Primeiro, a versão do PHP que estamos utilizando (targeted_php_version) é a 7.3. Os diretórios que queremos utilizar (directory_list) são "src", "vendor/symfony/dom-crawler" e "vendor/guzzlehttp/guzzle". Em exclude_analysis_directory_list, podemos informar quais diretórios deverão ser ignorados - nesse caso, toda a pasta "vendor", com exceção dos diretórios que passamos na opção anterior.
+
+Por fim, existem diversos plugins que podemos habilitar, como AlwaysReturnPlugin< UnreachableCodePlugin, entre outros. Como o arquivo de configuração já deixou alguns habilitados, vamos mantê-los assim.
+
+<?php
+
+return [
+
+    "target_php_version" => null,
+
+    'directory_list' => [
+        'src',
+        'vendor/symfony/dom-crawler',
+        'vendor/guzzlehttp/guzzle'
+    ],
+
+    "exclude_analysis_directory_list" => [
+        'vendor/'
+    ],
+
+    'plugins' => [
+        'AlwaysReturnPlugin',
+        'DollarDollarPlugin',
+        'DuplicateArrayKeyPlugin',
+        'DuplicateExpressionPlugin',
+        'PregRegexCheckerPlugin',
+        'PrintfCheckerPlugin',
+        'SleepCheckerPlugin',
+        'UnreachableCodePlugin',
+        'UseReturnValuePlugin',
+        'EmptyStatementListPlugin',
+        'LoopVariableReusePlugin',
+    ],
+];COPIAR CÓDIGO
+Feitas as alterações, se executarmos src\Buscador.php:29 PhanUndeclaredClassMethod Call to method getBody from undeclared class \Psr\Http\Message\ResponseInterface novamente, receberemos apenas um erro indicando que a ResponseInterface não foi identificada.
+
+src\Buscador.php:29 PhanUndeclaredClassMethod Call to method getBody from undeclared class \Psr\Http\Message\ResponseInterfaceCOPIAR CÓDIGO
+Isso acontece pois não informamos o caminho dessa classe. Sendo assim, voltaremos ao arquivo de configuração e incluiremos o caminho vendor/psr/http-message.
+
+'directory_list' => [
+    'src',
+    'vendor/symfony/dom-crawler',
+    'vendor/guzzlehttp/guzzle',
+    'vendor/psr/http-message'
+],
+COPIAR CÓDIGO
+Esse trabalho é um pouco maçante, mas estamos demonstrando para que você conheça essa ferramenta que analisa e encontra possíveis erros no projeto antes mesmo de rodarmos o código ou executarmos os testes. Rodando novamente o Phan no terminal, não teremos nenhum erro. Existem ainda muitas outras ferramentas que podem ser executadas, algumas que, inclusive, pegam erros que o Phan não consegue pegar (e vice-versa).
+
+Até o momento já aprendemos como o Composer trabalha com arquivos binários, como ele trabalha com dependências de desenvolvimento, como instalar dependências de desenvolvimento e produção, como executar somente as dependências de produção (--no-dev), entre outros recursos bem interessantes desse gerenciador.
+
+Mas ainda temos muitoo que aprender! Por exemplo, para executarmos o phan, estamos utilizando um comando bastante extenso (vendor\bin\phan --allow-polyfill-parser src\Buscador.php). O mesmo ocorre para o PHPCS e para o PHPUnit. É possível melhorarmos essas execuções, por exemplo definindo um comando composer test que executaria um script do PHPUnit, ou composer phan para rodarmos o Phan já com os parâmetros definidos, e assim por diante.
+
+O Composer nos permite executar scripts dessa forma, e é sobre isso que conversaremos no próximo capítulo.
+
+@@09
+Para saber mais: Executáveis em PHP
+
+Caso você tenha sido curioso e tentou abrir um dos arquivos executáveis que utilizamos nesta aula, talvez tenha ficado com alguma dúvida.
+Os arquivos contém código PHP, mas para executá-los nem precisamos chamar o PHP.
+
+Isso se dá pelo fato do início do arquivo conter uma informação que diz para o sistema operacional qual programa sabe executá-lo.
+
+;-)
+
+@@10
+Consolidando o seu conhecimento
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+1) Na linha de comando, dentro do seu projeto, execute o comando abaixo para baixar o PHPUnit:
+
+composer require --dev phpunit/phpunitCOPIAR CÓDIGO
+2) De volta no seu editor de código crie uma nova pasta chamada tests. Dentro dela adicione um novo arquivo TestBuscadorDeCursos.php com o conteúdo abaixo:
+
+<?php
+
+namespace Alura\BuscadorDeCursos\Tests;
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\ClientInterface;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use Symfony\Component\DomCrawler\Crawler;
+
+class TestBuscadorDeCursos extends TestCase
+{
+    private $httpClientMock;
+    private $url = 'url-teste';
+
+    protected function setUp(): void
+    {
+        $html = <<<FIM
+        <html>
+            <body>
+                <span class="card-curso__nome">Curso Teste 1</span>
+                <span class="card-curso__nome">Curso Teste 2</span>
+                <span class="card-curso__nome">Curso Teste 3</span>
+            </body>
+        </html>
+        FIM;
+
+
+        $stream = $this->createMock(StreamInterface::class);
+        $stream
+            ->expects($this->once())
+            ->method('__toString')
+            ->willReturn($html);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn($stream);
+
+        $httpClient = $this
+            ->createMock(ClientInterface::class);
+        $httpClient
+            ->expects($this->once())
+            ->method('request')
+            ->with('GET', $this->url)
+            ->willReturn($response);
+
+        $this->httpClientMock = $httpClient;
+    }
+
+    public function testBuscadorDeveRetornarCursos()
+    {
+        $crawler = new Crawler();
+        $buscador = new Buscador($this->httpClientMock, $crawler);
+        $cursos = $buscador->buscar($this->url);
+
+        $this->assertCount(3, $cursos);
+        $this->assertEquals('Curso Teste 1', $cursos[0]);
+        $this->assertEquals('Curso Teste 2', $cursos[1]);
+        $this->assertEquals('Curso Teste 3', $cursos[2]);
+    }
+}COPIAR CÓDIGO
+4) Execute o teste na linha de comando:
+
+vendor\bin\phpunit tests\TestBuscadorDeCursos.phpCOPIAR CÓDIGO
+3) Agora vamos validar se nosso código segue alguns padrões definidos no PSR. Para tal, vamos usar o PHP Codesniffer. Na linha de comando execute:
+
+composer require --dev squizlabs/php_codesniffer
+composer require --dev phan/phan
+COPIAR CÓDIGO
+4) Uma vez baixado verifique o padrão PSR12 executando na linha de comando:
+
+vendor\bin\phpcs --standard=PSR12 src\Buscador.phpCOPIAR CÓDIGO
+Tente corrigir os erros relacionado com a estrutura PHP e chame novamente phpcs.
+
+5) Vamos testar a ferramenta phan para encontrar possíveis erros no código.
+
+Primeiramente crie uma nova pasta .phan na raiz do seu projeto.
+
+6) Na pasta .phan, crie um novo arquivo config.php com as configurações abaixo:
+
+<?php
+
+return [
+    "target_php_version" => '7.3',
+    'directory_list' => [
+        'src',
+        'vendor/symfony/dom-crawler',
+        'vendor/guzzlehttp/guzzle',
+        'vendor/psr/http-message'
+    ],
+    "exclude_analysis_directory_list" => [
+        'vendor/'
+    ],
+    'plugins' => [
+        'AlwaysReturnPlugin',
+        'UnreachableCodePlugin',
+        'DollarDollarPlugin',
+        'DuplicateArrayKeyPlugin',
+        'PregRegexCheckerPlugin',
+        'PrintfCheckerPlugin',
+    ],
+];COPIAR CÓDIGO
+6) Agora execute o phan na linha de comando:
+
+vendor\bin\phan --allow-polyfill-parserCOPIAR CÓDIGO
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@11
+O que aprendemos?
+
+Nesta aula, aprendemos: Nessa aula falamos sobre dependências e ferramentas que não são utilizadas em produção e sim no ambiente de desenvolvimento:
+Através do flag --dev definimos que uma dependência não faz parte do ambiente de produção
+Caso desejarmos baixar as dependências de "produção" apenas podemos usar o flag no-dev
+Arquivos executáveis fornecidos por componentes instalados pelo composer ficam na pasta vendor/bin
+Conhecemos três ferramentas do mundo PHP:
+phpunit para rodar testes;
+phpcs para verificar padrões de código;
+phan para executar uma análise estática da sintaxe do nosso código.
