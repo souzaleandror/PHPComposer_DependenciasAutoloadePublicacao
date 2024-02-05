@@ -14,6 +14,7 @@ vendor/bin/phpunit --version
 composer require --dev squizlabs/php_codesniffer
 vendor/bin/phpcs --standard=PSR12 src/
 composer require --dev phan/phan
+composer dumpautoload
 ```
 
 @01-Instalando o Composer 
@@ -1428,3 +1429,277 @@ Conhecemos três ferramentas do mundo PHP:
 phpunit para rodar testes;
 phpcs para verificar padrões de código;
 phan para executar uma análise estática da sintaxe do nosso código.
+
+#### 04/02/2024
+
+@05-Automatizando processos com Scripts
+
+@@01
+Projeto da aula anterior
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://caelum-online-public.s3.amazonaws.com/1255-composer/05/1250-composer-aula4.zip
+
+@@02
+Scripts no JSON
+
+Nesse capítulo continuaremos falando sobre os scripts que podem ser executados na linha de comando, mas agora de forma um pouco diferente. Começaremos pelo teste que implementamos com o PHPUnit. Para executá-la, precisamos chamar vendor\bin\phpunit tests\TestBuscadorDeCursos.php, um comando bastante extenso e que pode facilmente ocasionar um erro. Além disso, poderíamos ter outras configurações envolvidas, dificultando ainda mais lembrarmos como é feita a execução manualmente.
+A ideia é fazermos com que a execução do comando composer test chame todo o código que citamos acima. Isso não só é possível, como também é bem simples. No arquivo composer.json, podemos adicionar uma seção scripts. Nela, criaremos um script test cujo valor será aquilo que queremos executar. Porém, temos ainda outra vantagem: não precisamos digitar o diretório vendor\bin, pois, se o comando informado não existir no sistema operacional, o Composer irá buscá-lo diretamente nessa pasta.
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php"
+
+}COPIAR CÓDIGO
+Feito isso, se executarmos composer test no terminal, o TestBuscadorDeCursos.php será executado corretamente. Vamos repetir esse processo, dessa vez criando um script cs para phpcs --standard=PSR12, que é o nosso PHP CodeSniffer.
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos",
+    "cs": "phpcs --standard=PSR12"
+}COPIAR CÓDIGO
+Feito isso, voltaremos ao terminal e executaremos composer csx. Como o comando está errado, mas é semelhante ao correto, o Composer nos sugerirá cs. Já se executarmos composer cs, receberemos uma mensagem de erro diferente:
+
+Script phpcs --standard=PSR12 handling the cs event returned with error code 3COPIAR CÓDIGO
+Isso acontece pois esquecemos de adicionar o diretório a ser verificado. Vamos corrigir isso:
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos",
+    "cs": "phpcs --standard=PSR12 src/"
+}COPIAR CÓDIGO
+Feita a correção, a execução ocorrerá corretamente, nos retornando os erros de formatação no nosso código. Continuando, adicionaremos também um script phan com o comando vendor\bin\phan -allow-polyfill-parser. Assim, poderemos rodar composer phan no terminal, e ele nos retornará os erros encontrados no nosso projeto.
+
+Já entendemos a definição de scripts no Composer, mas ela é mais poderosa do que isso. Imagine que tenhamos um pipeline de deploy e sempre que vamos enviar um código para produção, queremos executar uma sequência de scripts, por exemplo verificando que nosso código não tem erro, garantindo que ele está dentro do padrão definido e, em caso positivo, rodar os testes. Por fim, somente se tudo isso for executado corretamente, queremos que o commit seja feito, e do contrário teremos um erro.
+
+Ou seja, a ideia é termos somente um comando executando vários scripts do Composer. Conversaremos sobre isso no próximo vídeo.
+
+@@03
+Pra que scripts?
+
+Nesta aula nós configuramos os comandos da última aula para serem executados através do comando composer.
+Que vantagem isso nos traz?
+
+Isso faz com que os comandos consumam menos memória pois o Composer é muito leve.
+ 
+Alternativa correta
+Podemos digitar um comando simples para executar uma tarefa complexa, onde vários parâmetros podem ser informados
+ 
+Alternativa correta! Separando um script no composer.json podemos dar um nome simples para um comando grande. Isso evita que esqueçamos algum parâmetro importante de algum comando. :-D
+Alternativa correta
+Isso faz com que os erros de algum comando não sejam exibidos na tela
+
+@@04
+Compondo Scripts
+
+Já conseguimos um resultado interessante com os nossos scripts, e nosso objetivo agora é termos um único script que rode os três que criamos anteriormente. Felizmente, isso não é difícil. Teremos, em composer.json, um comando check que executará uma lista [] de scripts: primeiro o phan, depois o cs e por fim o test.
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php",
+    "cs": "phpcs --standard=PSR12 src/",
+    "phan": "phan --allow-polyfill-parser",
+    "check": [
+        "phan",
+        "cs",
+        "test"
+    ]
+}COPIAR CÓDIGO
+Se executarmos dessa forma, receberemos um erro. Isso acontece foi o comando check não invocou o script phan, mas sim o comando phan. Se removermos o phan da lista, ele tentará executar um comando chamado cs, que não existe. O que queremos, ao invés disso, é fazer referência aos scrips já existentes. Para isso, basta adicionarmos um @ na frente de cada script na lista:
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php",
+    "cs": "phpcs --standard=PSR12 src/",
+    "phan": "phan --allow-polyfill-parser",
+    "check": [
+        "@phan",
+        "@cs",
+        "@test"
+    ]
+}COPIAR CÓDIGO
+Ao executarmos o composer check, os scripts serão executados com sucesso, na ordem que definimos. Se criarmos algum erro no código, a execução terminará no primeiro passo, que é o phan. Se não existir erro algum, mas nosso estilo de código não estiver passando, os testes não serão executados, terminando de rodar no cs. Por fim, podemos criar um $this->fail() no TestBuscadorDeCursos.php para fazermos o código falhar, evidenciando, no terminal, que ele também está sendo executado. Com isso, temos uma composição de scripts.
+
+Outra coisa interessante é que, ao pegarmos um projeto já existente do Composer, podemos rodar composer list, e todos os comandos existentes serão exibidos - inclusive os scripts personalizados, no nosso caso cs, phan, test e check. Vamos analisar as descrições deles:
+
+check                Runs the check script as defined in composer.json.
+cs                   Runs the cs script as defined in composer.json.
+phan                 Runs the phan script as defined in composer.json.
+test                 Runs the test script as defined in composer.json.COPIAR CÓDIGO
+Podemos adicionar descrições personalizadas para nossos scripts. Faremos isso para o check, que no momento é o mais importante. Para isso, basta adicionarmos, no composer.json, uma nova chave scripts-descriptions. Nela, definiremos o nome do script, nesse caso check, e uma descrição, que será "Roda as verificações do código. PHAN, PHPCS e PHPUNIT".
+
+"scripts-descriptions": {
+    "check": "Roda as verificações do código. PHAN, PHPCS e PHPUNIT"
+}COPIAR CÓDIGO
+Se executarmos o composer list novamente, teremos, dentre os scrips listados:
+
+check                Roda as verificações do código. PHAN, PHPCS e PHPUNITCOPIAR CÓDIGO
+Assim, além de conseguirmos executar alguns scripts, temos a possibilidade de criar uma composição de scripts e definir descrições para ela. Mas será que é possível criarmos um script do Composer para alguma ferramenta que não tenha sido baixada por meio dele? Conversaremos sobre isso no próximo vídeo.
+
+@@05
+Scripts compostos
+
+Vimos que podemos, além de definir scripts, compor vários scripts e chamá-los através de um único comando.
+Que tipo de vantagem isso nos traz?
+
+Possibilidade de refatorar nosso código
+ 
+Alternativa correta
+Possibilidade de configurarmos um processo de build com um único comando
+ 
+Alternativa correta! Desta forma, com um único comando podemos configurar para que nosso projeto seja testado, verificado e quaisquer outras tarefas necessárias para colocar nosso código em produção. E o melhor: com apenas um comando!
+Alternativa correta
+Velocidade na execução dos comandos
+
+@@06
+Mais sobre scripts
+
+Já fizemos bastante coisa interessante com os nossos scripts do Composer, mas surgiu uma dúvida: será que só é possível executar comandos que o próprio Composer baixou? Na verdade não, e qualquer comando do sistema operacional pode ser executado por meio dele. Vamos a um exemplo.
+Nosso instrutor é usuário de Linux e, por estar habituado a esse ambiente, de vez em quando tenta executar um ls no Windows, que equivale ao dir desse sistema operacional. Para resolver essa situação, é possível criar um script ls que executa o comando dir:
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php",
+    "cs": "phpcs --standard=PSR12 src/",
+    "phan": "phan --allow-polyfill-parser",
+    "ls": "dir",
+    "check": [
+        "@phan",
+        "@cs",
+        "@test"
+    ]
+},COPIAR CÓDIGO
+Com isso, se executarmos composer ls no terminal, o diretório atual será listado. Assim, aprendemos que é possível executar qualquer comando no Terminal utilizando o Composer. Como outro exemplo, imagine que temos no projeto um diretório "cache" e que estamos no Linux (pois nosso instrutor esqueceu, momentaneamente, qual o comando para remover um diretório no Windows). Nesse cenário, poderíamos criar um comando clear-cache que executaria o script rm -rf cache. Assim, mesmo que a forma de armazenar cache mude ou que o script a ser executado mude, a chamada sempre será composer clear-cache.
+
+Na verdade, o comando clear-cache já existe no Composer, e limpa o cache de dependências já baixadas. Sendo assim, alteraremos o comando criado para limpa-cache e o comando a ser executado para del cache.
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php",
+    "cs": "phpcs --standard=PSR12 src/",
+    "phan": "phan --allow-polyfill-parser",
+    "ls": "dir",,
+    "limpa-cache": "del cache",
+    "check": [
+        "@phan",
+        "@cs",
+        "@test"
+    ]
+},COPIAR CÓDIGO
+Se rodarmos composer limpa-cache no terminal, o del cache será executado, pedindo uma informação. Assim, já temos uma noção de quão poderosa essa funcionalidade do Composer pode ser. Outra funcionalidade é a possibilidade de executarmos um código PHP que criamos, por exemplo o Buscador.php. Se tivéssemos, por exemplo, uma classe que exibe os $cursos retornados na tela, poderíamos ter um comando exibe-cursos que chamaria o script Namespace\\Da\\Classe:metodo, e tal metodo seria executado na Classe referenciada.
+
+Continuando a explorar essas possibilidades, seria interessante que o cache da nossa aplicação fosse limpo toda vez que rodássemos o composer update, de modo a eliminar qualquer preocupação em relação às alterações quando instalarmos as novas dependências. Seria ainda melhor se sempre que atualizássemos as dependências, rodássemos o script test. Já sabemos que é possível executar comandos trazidos pelo Composer ou do sistema operacional, além de compor comandos e executar códigos em PHP, mas isso tudo diretamente pela linha de comando. Porém, também é possível fazer tudo isso de forma automática, e esse será o tema do nosso próximo vídeo.
+
+@@07
+O que posso executar?
+
+Neste vídeo tivemos uma compreensão maior sobre o que pode ser executado através de um script do Composer
+O que o Composer consegue executar através de seus scripts?
+
+Códigos em outra linguagem
+ 
+Alternativa correta
+Códigos em PHP
+ 
+Alternativa correta! Podemos, por exemplo, executar um método de determinada classe a partir de um script do Composer
+Alternativa correta
+Comandos do sistema operacional
+ 
+Alternativa correta! Conseguimos executar qualquer comando do sistema operacional através dos scripts do Composer
+
+@@08
+Eventos e scripts
+
+Ao longo desse capítulo, não só criamos scripts personalizados como também produzimos um comando que roda todos os scripts do nosso pipeline - nesse caso, apenas três ferramentas relativamente famosas, mas poderíamos ter várias outras com as mais diversas configurações. Agora, nosso objetivo é que, sempre que rodarmos o composer update, o Composer busque as atualizações, instale-as (ou não) e execute o nosso script test que invoca o PHPUnit.
+Na página sobre scripts do Composer, podemos encontrar a seção "Event names", que se refere a eventos e contém uma lista com diversos deles, como pre-install-cmd, que ocorre antes do composer install e na presença de um arquivo composer.lock, ou seja, da primeira vez que rodamos o composer install no projeto. Sendo assim, o script que for definido com esse nome será executado antes de trazermos as bibliotecas com as quais vamos trabalhar. Depois da instalação, é chamado o script definido com o nome post-install-cmd.
+
+Supondo que já tenhamos um composer.lock e executamos um composer update, os scripts que serão chamados serão pre-update-cmd, antes do update ser executado, e post-update-cmd depois da execução desse update. Além disso, o pre-update-cmd também é chamado quando rodamos o composer install sem que um arquivo composer.lock esteja presente, antes da execução, e o post-update-cmd nas mesmas condições, mas após a execução.
+
+Além desses, existem vários outros comandos que podemos chamar. Para que o funcionamento deles fique claro, vamos definir, na seção scripts do nosso composer.json, um comando post-update-cmd para executarmos algo depois que o update for feito. Esse comando receberá uma lista de scripts contendo somente o nosso @test, mas, se quiséssemos, poderíamos incluir vários outros.
+
+"scripts": {
+    "test": "phpunit tests\\TestBuscadorDeCursos.php",
+    "cs": "phpcs --standard=PSR12 src/",
+    "phan": "phan --allow-polyfill-parser",
+    "ls": "dir",
+    "limpa-cache": "del cache",
+    "check": [
+        "@phan",
+        "@cs",
+        "@test"
+    ],
+    "post-update-cmd": [
+        "@test"
+    ]
+},COPIAR CÓDIGO
+Após buscar as atualizações das dependências, o Composer rodará automaticamente o PHPUnit. Isso nos abre diversas possibilidades, como limpar o cache ou fazer diversas outras tarefas quando executamos uma instalação ou atualização.
+
+Na página do Composer encontramos alguns exemplos de como definir scripts desse tipo, por exemplo definir um ou vários scripts a partir de uma classe chamando um método, definir de forma vista, chamando uma classe e um comando, e assim por diante.
+
+{
+    "scripts": {
+        "post-update-cmd": "MyVendor\\MyClass::postUpdate",
+        "post-package-install": [
+            "MyVendor\\MyClass::postPackageInstall"
+        ],
+        "post-install-cmd": [
+            "MyVendor\\MyClass::warmCache",
+            "phpunit -c app/"
+        ],
+        "post-autoload-dump": [
+            "MyVendor\\MyClass::postAutoloadDump"
+        ],
+        "post-create-project-cmd": [
+            "php -r \"copy('config/local-example.php', 'config/local.php');\""
+        ]
+    }
+}COPIAR CÓDIGO
+Em algumas situações isso pode ser muito útil. Podemos ter um servidor de integração contínua - de forma resumida, um servidor que fica rodando para executar nossas tarefas de build/deploy, verificando se nosso código está pronto para a produção. Nesse caso, ao mandarmos nosso código para esse servidor, tudo que teremos que colocar na configuração é a execução de um script definido no Composer.
+
+Com tudo isso, aprendemos o poder que o Composer tem de automatizar tarefas por meio de eventos, scripts, composições, entre outras possibilidades. Porém, ainda está faltando algo. Já desenvolvemos e testamos o nosso código utilizando ferramentas que garantem que ele esteja funcionando, mas como vamos disponibilizá-lo para que outras pessoas possam utilizá-lo? Conversaremos sobre isso na próxima aula.
+
+https://getcomposer.org/doc/articles/scripts.md
+
+@@09
+Para saber mais: Eventos
+
+Conhecemos e entendemos um pouco dos eventos que o Composer nos fornece. Com eles, podemos executar scripts em momentos específicos como, por exemplo, ao instalar ou atualizar um pacote.
+Para a lista completa de quais os eventos disponíveis, acesse https://getcomposer.org/doc/articles/scripts.md
+
+https://getcomposer.org/doc/articles/scripts.md
+
+@@10
+Consolidando o seu conhecimento
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+1) No seu editor de código, abra o composer.json e adicione o final, mas dentro das chaves principais:
+
+"scripts": {
+        "test": "phpunit tests\\TestBuscadorDeCursos.php",
+        "cs": "phpcs --standard=PSR12 src/",
+        "phan": "phan --allow-polyfill-parser",
+        "check": [
+            "@phan",
+            "@cs",
+            "@test"
+        ],
+        "post-update-cmd": [
+            "@test"
+        ]
+    },
+    "scripts-descriptions": {
+        "check": "Roda as verificações do código. PHAN, PHPCS e PHPUNIT"
+    }COPIAR CÓDIGO
+2) Na linha de comando, na raiz do seu projeto, chame um script específico:
+
+composer phanCOPIAR CÓDIGO
+Também tente chamar composer cs e composer test.
+
+3) Ainda na linha de comando, execute a sequência de scripts:
+
+composer check
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@11
+O que aprendemos?
+
+Nesta aula, aprendemos:
+scripts são definidos dentro do composer.json;
+scripts podem definir comandos que chamam ferramentas instaladas pelo Composer;
+scripts podem chamar comandos do sistema operacional;
+scripts podem chamar códigos PHP;
+scripts podem ser associados ao evento.
