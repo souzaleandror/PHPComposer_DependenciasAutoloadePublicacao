@@ -1703,3 +1703,300 @@ scripts podem definir comandos que chamam ferramentas instaladas pelo Composer;
 scripts podem chamar comandos do sistema operacional;
 scripts podem chamar códigos PHP;
 scripts podem ser associados ao evento.
+
+#### 05/02/2024
+
+@06-Publicando um pacote
+
+@@01
+Projeto da aula anterior
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://caelum-online-public.s3.amazonaws.com/1255-composer/06/1250-composer-aula5.zip
+
+@@02
+Versionamento
+
+Estamos no capítulo final do nosso treinamento de Composer! Já temos uma aplicação funcionando e utilizando dependências, aprendemos a gerar o autoload para nossas classes (além daquelas gerenciadas pelo Composer) e a trabalhar com ferramentas na linha de comando, além de estudarmos bastante sobre scripts. Porém, ainda faltam disponibilizarmos nosso componente para que ele seja utilizado por outras pessoas.
+Antes disso, vamos conversar sobre versionamento, ou seja, a versão de cada um dos pacotes, algo que citamos anteriormente em relação aos caracteres ^ ao lado das versões das nossas dependências:
+
+"require": {
+    "guzzlehttp/guzzle": "^6.4",
+    "symfony/dom-crawler": "^4.2",
+    "symfony/css-selector": "^4.2"
+},COPIAR CÓDIGO
+Como o Composer está diretamente ligado com sistemas de controle de versão, como o Git, às vezes podemos acabar confundindo a versão de um pacote no Composer com o versionamento de cada commit no Git. No Composer, cada versão de um pacote, como as que definimos no composer.json, são informadas por meio de tags. Ou seja, podemos criar tags com nomes específicos que o Composer entenderá como a versão do pacote.
+
+Como exemplo, usaremos a nossa própria aplicação, cuja pasta ("buscador-cursos-alura") já foi definida pelo nosso instrutor como um projeto do Git. Se você quiser fazer isso, mas não entende muito bem sobre o Git, não tem problema. Para começar, precisamos rodar o comando git init no diretório do projeto no terminal. Após isso, precisamos ter um arquiivo .gitignore na raiz do projeto, dessa forma:
+
+.idea/
+vendor/COPIAR CÓDIGO
+Isso porque a pasta "vendor" não pode ser commitada, já que ela é instalada pelo Composer. A linha ".idea/" é referente à IDE do PhpStorm, e não é necessária em outras IDEs. O arquivo .gitignore serve justamente para que o Git ignore - ou seja, não gerencie - as entradas listadas dele.
+
+Feitas essas configurações, chamaremos git add . no terminal e, em seguidda, git commit -m "Primeiro commit", onde "Primeiro commit" é uma mensagem personalizada. A partir desse ponto, foi definida a primeira versão do nosso projeto. Prosseguindo, podemos chamar git tag -a v1.0.0. O Composer consegue entender se chamarmos apenas git tag -a v1.0.0, mas utilizando a letra v na frente conseguimos evitar alguns problemas de compatibilidade com outros programas que podem ser essas tags.
+
+Note que o número da versão não é aleatório! Existe um esquema de versionamento chamado SemVer, ou "Semantic Versioning". Ele define que o primeiro número é a versão princial ("MAJOR version" ou "versão maior"), que indica quebra de compatibilidade. Por exemplo, imagine que nosso buscador deixa de retornar um array e passa a retornar um Generator. Nesse caso, trocaríamos a versão de v1.0.0 para v2.0.0, afinal temos uma quebra de compatibilidade e quem está usando nosso sistema/pacote precisa saber disso.
+
+Se adicionarmos alguma compatibilidade sem quebrar nada, utilizamos o segundo número, referente à "MINOR version" (ou "versão menor"). Nesse caso, adicionamos alguma funcionalidade, por exemplo, mas tudo que existia continua funcionando. Já quando temos mudanças menores ou correções de bugs, o terceiro e último número, conhecido como "PATCH version" ("versão de correção"), é utilizado. Assim, teremos:
+
+2.0.0
+MAJOR.MINOR.PATCHCOPIAR CÓDIGO
+Tendo entendido o conceito de versionamento semântico, criaremos a nossa tag. Após pressionarmos "Enter" no terminal, poderemos definir uma mensagem para ela, como "Primeira versão do pacote". Terminada essa parte, ainda faltam alguns passos para conseguirmos instalar o pacote com o Composer. Antes de prosseguirmos, vamos conversar sobre os caracteres que citamos anteriormente, conhecidos como "constraints de versionamento".
+
+Na documentação do Composer encontramos uma explicação mais aprofundada sobre o tema. É possível, por exemplo, definirmos as versões exatas dos pacotes que vamos baixar, como fizemos abaixo:
+
+"symfony/dom-crawler":"4.2.7"COPIAR CÓDIGO
+Se quisermos, podemos utilizar o hífen (-) para determinarmos um range (uma "faixa") de versões, como 1.0 - 2.0 - ou seja, da versão 1.0 até a versão 2.0. O * é utilizado para informar que, no local onde ele é inserido, qualquer valor será válido, por exemplo em 4.2.*, mostrando que queremos qualquer versão que comece com 4.2.
+
+O til, como em ~1.2, é equivalente à sintaxe >=1.2 <2.0.0, ou seja, maior ou igual a 1.2 e menor, não incluindo, que 2.0.0. Podemos variar na especificação da versão, por exemplo passando ~1.2.3. Nesse caso, a sintaxe correspondente seria >=1.2.3 <1.3.0.
+
+Por padrão, o Composer têm adicionado um circunflexo (^) nos nossos códigos. Ele é utilizado para informar que queremos baixar a versão especificada até a próxima "major version", ou seja, até o momento em que a compatibilidade quebra, o que é exatamente o que queríamos no nosso projeto: pegar, por exemplo, o dom-crawler da versão 4.2 até a versão 5.0. Assim, garantimos que nossas dependências estarão sempre atualizadas e sem nenhuma quebra.
+
+Entendidos esses conceitos de como criar uma versão do nosso pacote utilizando tags do sistema de versionamento de arquivos e como funcionam os requirimentos de versão, é hora de publicarmos o nosso componente para que outras pessoas usem. Começarem a entrar em detalhes nesse assunto no próximo vídeo.
+
+https://getcomposer.org/doc/articles/versions.md#exact-version-constraint
+
+@@03
+Para saber mais: Correção
+
+Próximo ao momento 7:05, eu cito que a constraint ^4.2 me permitira usar "até a versão 5" do pacote. Esse "até" citado por mim foi no sentido de <5.0, ou seja, a versão 5 não estaria incluída. Ou seja, ^4.2 significa >4.2.0 <5.0.0.
+Se quiser conferir cada operador possível na hora de definir as versões, você pode conferir o seguinte link da documentação: https://getcomposer.org/doc/articles/versions.md
+
+https://getcomposer.org/doc/articles/versions.md
+
+@@04
+Para saber mais: GIT
+
+Para disponibilizarmos nosso projeto de forma que terceiros possam baixá-lo e utilizá-lo, precisamos armazená-lo em algum repositório público.
+O Composer consegue acessar diversos repositórios e para entender quais as versões disponíveis de cada pacote ele vê as tags do GIT em seu respectivo repositório.
+
+O foco deste treinamento não é GIT, por isso não entraremos em detalhes, mas esta ferramenta é ESSENCIAL para qualquer pessoa que pretenda desenvolver qualquer coisa, utilizando qualquer tecnologia.
+
+Temos treinamentos de GIT aqui na Alura caso tenha interesse em se aprofundar no assunto.
+
+As tags devem ser organizadas seguindo o “Semantic Versioning”
+
+https://semver.org/
+
+@@05
+Logando no Packagist
+
+É hora de publicarmos o nosso pacote. Para isso, precisaremos de uma conta no GitHub. Se você ainda não tiver uma, basta acessar o site e criá-la. Feito isso, iremos criar um repositório para o qual enviaremos o nosso código, e é nesse repositório onde o Packagist buscará o componente.
+Usaremos a opção "New Repository" e colocaremos o nome "curso-composer-alura-buscador-cursos" e a descrição "Projeto utilizado no curso de composer". É um nome comprido e, se você preferir, pode escolher outro que faça mais sentido para você. Deixaremos a opção "Public" marcada e clicaremos em "Create Repository". Com o repositório criado, o próprio Github nos informará como podemos fazer para adicioná-lo de modo a enviarmos o código. Nessa página, usaremos a opção HTTPS. e copiaremos o código disponibilizado mais abaixo:
+
+git remote add origin https://github.com/CViniciusSDias/curso-composer-alura-buscador-cursos.gitCOPIAR CÓDIGO
+Rodaremos esse código no terminal e, em seguida, chamaremos git push origin master. Uma janela do GitHub se abrirá pedindo login e senha, Após preenchermos, nosso código será enviado para o repositório do GitHub na branch "master". Após esse envio, faremos outro git push, dessa vez da nossa tag:
+
+git push origin v1.0.0COPIAR CÓDIGO
+Se atualizarmo a URL do GitHub no navegador, nosso código terá subido com sucesso, com todas as configurações do Composer que fizemos anteriormente. Voltaremos então ao site https://packagist.org e faremos login utilizando nossa própria conta do GitHub. Clicaremos em "Submit" e adicionaremos a URL do GitHub do nosso projeto, clicando em "Check" logo em seguida. Como retorno, o site nos mostrará que o nome do pacote será "cviniciussdias/buscador-cursos", onde "cviniciussdias" será substituído pelo seu nome de usuário. Para confirmarmos, clicaremos no botão "Submit">
+
+O carregamento do pacote será feito em uma nova página, na qual teremos a mensagem "This package has not been crawled yet, some information is missing", nos avisando que algumas informações do pacote ainda estão faltando pois ele não foi totalmente acessado ainda. Para que a documentação do projeto apareça na página, teríamos que incluir no projeto um arquivo readme.md, mas não nos preocuparemos com isso agora.
+
+No próximo vídeo verificaremos se é possível baixar o nosso pacote.
+
+@@06
+Baixando nosso pacote
+
+Já é possível vermos nosso projeto no ar, listado no Packagist, o que é bem emocionante. Ainda temos um aviso informando que não fornecemos nenhuma licença para o projeto, mas a princípio isso não deve ser um problema. Para garantirmos que tudo está funcionando como deveria, criaremos um novo projeto no PhpStorm, que chamaremos de "projeto-2".
+No terminal, acessaremos a pasta do projeto e chamaremos composer require cviniciussdias/buscador-cursos - claro, substituindo o nome do pacote pelo que você criou. Feito isso, o Composer irá baixar o buscador-cursos e todas as dependências que ele precisa para funcionar, ou seja, os componentes do Symfony, o GuzzleHttp, entre outros. Além disso, as dependências de desenvolvimento, como o PHPUnit e o Phan, não foram baixadas.
+
+De volta ao PhpStorm, criaremos um arquivo teste.php no qual faremos o require do autoload e pegaremos os cursos por meio de um $buscador. Para utilizá-lo, precisaremos também de uma instância $client para a qual passaremos a base_uri, que é a URL da Alura, e um $crawler. Faremos também as importações das dependências necessárias.
+
+<?php
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
+
+require 'vendor/autoload.php';
+
+$client = new Client(['base_uri' => 'https://www.alura.com.br/']);
+$crawler = new Crawler();
+$buscador = new Buscador($client, $crawler);COPIAR CÓDIGO
+Em seguida, pegaremos os $cursos chamando o método buscar() e passando como parâmetro a URL /cursos-online-programacao/php. Faremos então um foreach iterando por cada $curso e, por fim, os exibiremos na tela com um echo.
+
+<?php
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
+
+require 'vendor/autoload.php';
+
+$client = new Client(['base_uri' => 'https://www.alura.com.br/']);
+$crawler = new Crawler();
+
+$buscador = new Buscador($client, $crawler);
+$cursos = $buscador->buscar('/cursos-online-programacao/php');
+
+foreach ($cursos as $curso) {
+    echo $curso . PHP_EOL;
+}COPIAR CÓDIGO
+No terminal, executaremos php teste.php para testarmos. Como esperado, os cursos da Alura serão listados com sucesso. Ou seja, em um novo projeto, conseguimos utilizar o código que disponibilizados no Packagist. Porém, ainda podemos fazer melhorias. No projeto inicial buscador-cursos, temos um arquivo chamado buscar-cursos.php que executa o nosso código e exibe os cursos na tela. Queremos poder acessá-lo com vendor\bin\buscar-cursos.php, como fazíamos com algumas ferramentas do projeto anterior. Como podemos fornecer nosso arquivo executável diretamente na pasta "bin" do Composer? Esse será o tema do nosso próximo vídeo.
+
+@@07
+Bin (Bin)
+
+Já disponibilizados o nosso componente para ser baixado e conseguimos instalá-lo em um novo projeto. Agora é hora de fazermos algumas alterações, e a primeira delas é adicionarmos uma licença de modo a remover a mensagem de erro que é exibida no Packagist. Como esse projeto não será continuado, adicionaremos uma licença qualquer. Se você quiser trabalhar em um projeto que será mantido, é recomendado pesquisar sobre as licenças de software disponíveis.
+Em composer.json, adicionaremos a configuração licence com o valor GPL-3.0.
+
+"license": "GPL-3.0"COPIAR CÓDIGO
+Além disso, adicionaremos um arquivo README.md. Esse é um arquivo padrão que tanto o Github quanto o Packagist leem quando acessamos o repositório, e é nele que armazenaremos a documentação do nosso componente. Por enquanto vamos preenchê-lo com um texto qualquer.
+
+# Documentação do componente
+
+Este componente é SUPIMPA!!COPIAR CÓDIGO
+Voltando ao assunto principal do vídeo, queremos informar que o arquivo buscar-cursos pode ser utilizado como um arquivo binário, permitindo a execução de vendor\bin buscar-cursos.php no terminal. Para isso, poderíamos acessar o composer.json e incluir como arquivo binário (bin), dentre vários possíveis, o buscar-cursos.php.
+
+"license": "GPL-3.0",
+"bin": ["buscar-cursos.php"]COPIAR CÓDIGO
+Feito isso, quando atualizarmos nosso projeto, será possível acessarmos o terminal e chamarmos php vendor\bin\buscar-cursos.php. Porém, queremos chamar somene vendor\bin\buscar-cursos.php. Para que isso funcione, teremos que adicionar um #!/usr/bin/env php no início do arquivo buscar-cursos.php.
+
+#!/usr/bin/env php
+<?php
+
+require 'vendor/autoload.php';
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
+
+$client = new Client(['base_uri' => 'https://www.alura.com.br']);
+$crawler = new Crawler();
+
+$buscador = new Buscador($client, $crawler);
+$cursos = $buscador->buscar('/cursos-online-programacao/php');
+
+foreach ($cursos as $curso) {
+    echo exibeMensagem($curso);
+}COPIAR CÓDIGO
+O código #! indica que estamos informando que programa lerá esse arquivo, e /usr/bin/env php explicita que o arquivo deverá ser lido pelo PHP. Mas, mudando um pouco de assunto, você consegue perceber dois erros no nosso buscador-cursos.php? O primeiro deles é que estamos fazendo um echo na função exibeMensagem(), que já exibe um conteúdo na tela. Resolveremos isso simplesmente removendo o echo. O segundo erro é que o composer.json não tem mais o files, onde incluíamos o arquivo functions.php. Vamos corrigir adicionando o files no nosso autoload.
+
+"autoload" : {
+    "files": ["./functions.php"],
+    "psr-4" : {
+        "Alura\\BuscadorDeCursos\\": "src/"
+    }
+},COPIAR CÓDIGO
+Feitas essas modificações, vamos commitar o projeto no Github para atualizarmos o componente. No terminal, voltaremos ao projeto "buscador-cursos-alura" e executaremos git status para exibir as alterações que fizemos. Em seguida, faremos git add . e git commit -m "Adicionando arquivo bin", onde o conteúdo entre aspas é uma mensagem personalizada sobre esse commit.
+
+Após a execução, criaremos uma nova tag com git tag -a v1.1.0. Mas por que aumentaremos o segundo número (a "minor version") e não o terceiro? Faremos isso pois estamos disponibilizando um novo arquivo binário para o usuário, ou seja, uma nova funcionalidade, mas não corrigimos bugs ou modificamos um comportamento já existente (o que alteraria o "patch" e a "major version", respectivamente). Após pressionarmos "Enter", incluiremos o texto "Arquivo binário disponibilizado" e, por fim, faremos git push origin v1.1.0.
+
+No Packagist, atualizaremos a página e perceberemos que a mensagem "There is no license information available for the latest version of this package" deixará de ser exibida. Abaixo, a nova versão, v1.1.0, terá sido incluída com sucesso. Porém, o arquivo README.md não estará disponível, pois não subimos o commit na master.
+
+Para exibirmos com sucesso a documentação, voltaremos ao terminal e executaremos git push origin master. Ao atualizarmos a página do Packagist novamente, o texto do RADME aparecerá na tela. Voltaremos então ao "projeto-2" e executaremos composer update para baixarmos a atualização.
+
+Feito isso, ao executarmos vendor\bin\cursos-cursos.php, o Windows tentará abrir o arquivo sugerindo alguns programas. Já se executarmos php vendor\bin\cursos-cursos.php, teremos um erro. Voltando ao nosso projeto, teremos dois arquivos na pasta "bin": buscar-cursos.php e buscar-cursos.php.bat, algo que foi feito pelo Composer. Se rodarmos vendor\bin\buscar-cursos.php.bat, conseguiremos listar os cursos com sucesso. Legal, não é? No próximo vídeo recapitularemos tudo o que fizemos ao longo do treinamento!
+
+@@08
+Nosso arquivo executável
+
+Temos agora um pacote que pode ser baixado e utilizado por terceiros. Mas, e nosso arquivo executável? Nós temos um arquivo pronto para ser executado pela linha de comando.
+O que é necessário fazer para que nosso arquivo seja disponibilizado na pasta vendor/bin?
+
+Selecione uma alternativa
+
+Disponibilizá-lo separadamente
+ 
+Alternativa correta
+Informar o caminho do arquivo na entrada bin do nosso composer.json
+ 
+Alternativa correta! Com isso o Composer transformará nosso arquivo em executável e o disponibilizará nas pasta vendor/bin de quem utilizar nosso componente
+Alternativa correta
+Copiá-lo para a pasta bin no nosso projeto
+
+@@09
+Consolidando o seu conhecimento
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com os próximos cursos que tenham este como pré-requisito.
+Esse exercício assume que você já tenha GIT instalado.
+
+1) Abra um terminal, entre no seu projeto e inicialize o repositório:
+
+git initCOPIAR CÓDIGO
+2) No seu editor de código, abra o arquivo .gitignore que fica na raiz do projeto. Nele adicione a linha:
+
+vendor/COPIAR CÓDIGO
+Isso faz o GIT ignorar a pasta vendor.
+
+3) De volta na linha de comando, comite os arquivos:
+
+git commit -am "Primeiro commit da aplicação BuscaCursos"COPIAR CÓDIGO
+4) Agora crie um tag com GIT:
+
+git tag -a v1.0.0COPIAR CÓDIGO
+5) Na sua conta de Github, crie um novo repositório (por exemplo, alura-curso-composer-buscador-cursos).
+
+6) Na linha de comando, adicione o repositório remoto como origin e envie o código e tag:
+
+git add origin https://github.com/<seu-usuario>/<seu-repositorio>.git
+git push origin master
+git push origin v1.0.0COPIAR CÓDIGO
+7) Acesse o site https://packagist.org e se logue com sua conta do Github. Clique no botão Submit e cole o nome do repositório no campo de texto. Confirme o envio do formulário para adicionar o seu repositório no packagist.
+
+8) Crie um novo projeto para testar o pacote no seu editor de código.
+
+Nesse novo projeto, crie um novo arquivo teste.php com o conteúdo abaixo:
+
+<?php
+
+use Alura\BuscadorDeCursos\Buscador;
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
+
+require 'vendor/autoload.php';
+
+$client = new Client(['base_uri' => 'https://www.alura.com.br/']);
+$crawler = new Crawler();
+
+$buscardor = new Buscador($client, $crawler);
+$cursos = $buscardor->buscar('/cursos-online-programacao/php');
+
+foreach ($cursos as $curso) {
+    exibeMensagem($curso);
+}COPIAR CÓDIGO
+9) Na linha de comando, entre na pasta do seu novo projeto e digite para baixar as dependências:
+
+Obs: Você pode copiar esse comando da página do seu projeto no packagist).
+
+composer require <seu-nome>/<seu-package>COPIAR CÓDIGO
+10) Uma vez baixado o pacote, execute na linha de comando:
+
+php teste.php
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@10
+O que aprendemos?
+
+Nesta aula, aprendemos:
+O composer entende as tags de versão de um repositório Git
+O composer segue o conceito do versionamento semântico (MAJOR.MINOR.PATCH)
+No composer.json podemos definir constraints (mais detalhes em https://getcomposer.org/doc/articles/versions.md)
+Para distribuir e disponibilizar o seu projeto devemos:
+Criar um repositório no Github;
+Usar o packgist e associar com o repositório no Github.
+
+https://getcomposer.org/doc/articles/versions.md
+
+@@11
+Projeto do curso
+
+Caso queira, você pode baixar aqui o projeto completo implementado neste curso.
+
+https://caelum-online-public.s3.amazonaws.com/1255-composer/06/1250-composer-aula6-final.zip
+
+@@12
+Conclusão
+
+Parabéns por ter concluído esse treinamento de Composer! Nesse curso, apesar de não termos trabalhado incessantemente com códigos, apresentamos um conteúdo muito importante para o dia-a-dia de quem desenvolve com PHP. Começamos aprendendo o que é o Composer, um gerenciador de dependências por pacotes individuais, e como instalá-lo.
+Trabalhamos então com o composer.json, um arquivo a partir do qual o gerenciador lê todos os dados e ações que precisa executar. Iniciamos com uma estrutura inicial bem pequena (e também com um projeto pequeno), que foi crescendo conforme adicionamos dependências, implementamos um autoload (que pode funcionar por meio das PSRs, de um classmap ou de files) e separamos as dependências de produção e de desenvolvimento.
+
+Aprendemos também a configurar scripts com o Composer, tornando mais simples a execução de determinadas tarefas. Criamos, inclusive, scripts compostos - ou seja, scripts feitos a partir de outros scripts, algo que nos trouxe algumas facilidades, e adicionamos descrições aos scripts que criamos. Ainda nesse assunto, aprendemos o que são e como trabalhar com os eventos do Composer. Ao final, sempre que rodarmos o composer update no nosso projeto, os testes do PHPUnit serão executados.
+
+Em seguida, publicamos o no Github e no Packagist, um repositório público de pacotes utilizado pelo Composer, aprendendo a definir a licença, a incluir a documentação e a utilizar o projeto disponibilizado em um novo projeto. Para isso, criamos um novo projeto, fizemos o require do nosso buscador e ainda atualizamos a dependência depois de termos feito algumas alterações. Por fim, disponibilizamos um arquio binário na pasta "bin" do projeto de modo a permitir que ele fosse executado diretamente do Terminal com somente um comando.
+
+Os conhecimentos adquiridos nesse curso certamente são o suficiente para você gerenciar as dependências da sua aplicação e entender como o Composer trabalha, mas ainda existem diversos conteúdos para serem estudados! Por isso, recomendamos que você pesquise outros materiais, como vídeos e palestras na internet, além da própria documentação do Composer.
+
+Esperamos que você tenha tirado bastante proveito do treinamento. Se tiver qualquer dúvida, abra um tópico no nosso fórum, onde os instrutores e toda a comunidade da Alura poderão lhe ajudar. Bons estudos e até a próxima!
